@@ -86,6 +86,23 @@ merge_df = left_join(demo_df, accel_df, by = c("seqn")) %>%
   select(seqn, sex, age, bmi, education, everything())
 ```
 
+2. Produce a reader-friendly table and plot.
+```{r message = FALSE}
+merge_df %>% 
+  group_by(sex, education) %>% 
+  summarise(count = n()) %>% 
+  pivot_wider(
+     names_from = "sex",
+    values_from = "count",
+    values_fill = 0
+  ) %>% 
+  knitr::kable() 
+
+ggplot(merge_df, aes(x = education, y = age, color = sex)) + 
+  geom_boxplot() 
+  # facet_grid(. ~ sex)
+```
+From the boxplot, we can see similar median age of more than high school group and less than high school group, and the have similar distribution and range, but the median age of equivalent high school group for female is higher than male. Moreover, the overall age of have more than high school education level will be younger than other two education levels. 
 
 
 
