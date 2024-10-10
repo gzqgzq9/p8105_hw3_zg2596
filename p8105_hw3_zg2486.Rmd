@@ -99,8 +99,8 @@ merge_df %>%
   knitr::kable() 
 
 ggplot(merge_df, aes(x = education, y = age, color = sex)) + 
-  geom_boxplot() 
-  # facet_grid(. ~ sex)
+  geom_boxplot() +
+  theme(legend.position = "bottom")
 ```
 From the boxplot, we can see similar median age of more than high school group and less than high school group, and the have similar distribution and range, but the median age of equivalent high school group for female is higher than male. Moreover, the overall age of have more than high school education level will be younger than other two education levels. 
 
@@ -113,55 +113,38 @@ total_activity = merge_df %>%
 ggplot(total_activity, aes(x = age, y = total_mims, color = sex)) +
   geom_point(alpha =.5) +
   geom_smooth(se = FALSE) +
-  facet_grid(. ~ education)
+  facet_grid(. ~ education) +
+  theme(legend.position = "bottom")
 ```
 The trends of total_activity for all female age in high school equivalent and more than higher school groups are higher than male. But in less than high school group, the trend of male surpass the trend of female around 41~42 years old. And the overall trend of male and female in each education level is decreasing with age increasing. 
 
 4. Make a three-panel plot.
 ```{r message = FALSE}
-ggplot(total_activity, aes(x = sex, y = total_mims, color = sex)) +
-  geom_point(alpha =.5) +
+activity_time = merge_df %>% 
+  pivot_longer(
+    min1:min1440,
+    names_to = "minute",
+    names_prefix = "min",
+    values_to = "mims"
+  ) %>% 
+  mutate(minute = as.numeric(minute)) %>% 
+  group_by(sex, education, minute) %>% 
+  mutate(mean_mims = mean(mims)) 
+
+ggplot(activity_time, aes(x = minute, y = mean_mims, color = sex)) +
+  geom_line(alpha = 0.5) +
   geom_smooth(se = FALSE) +
-  facet_grid(. ~ education)
+  facet_grid(. ~ education) +
+  theme(legend.position = "bottom")
 ```
 
 
 
-# Problem 3
-1. Import, clean, and tidy data.
-```{r}
-jan_2020_df = 
-  read_csv("./citibike/Jan 2020 Citi.csv",
-        na = c("NA", "", ".")) %>% 
-  janitor::clean_names() %>% 
-  mutate(date = "january 2020") 
 
-jan_2024_df = 
-  read_csv("./citibike/Jan 2024 Citi.csv",
-            na = c("NA", "", ".")) %>% 
-  janitor::clean_names() %>% 
-  mutate(date = "january 2024") 
- 
 
-july_2020_df = 
-  read.csv("./citibike/July 2020 Citi.csv",
-            na = c("NA", "", ".")) %>% 
-  janitor::clean_names() %>% 
-  mutate(date = "july 2020") 
 
-july_2024_df = 
-  read.csv("./citibike/July 2024 Citi.csv",
-            na = c("NA", "", ".")) %>% 
-  janitor::clean_names() %>% 
-  mutate(date = "july 2024") 
 
-merge1 = merge(jan_2020_df, jan_2024_df)
-```
 
-2. Create a reader-friendly table
-```{r}
-
-```
 
 
 
