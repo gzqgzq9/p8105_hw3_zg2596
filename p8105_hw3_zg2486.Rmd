@@ -104,6 +104,20 @@ ggplot(merge_df, aes(x = education, y = age, color = sex)) +
 ```
 From the boxplot, we can see similar median age of more than high school group and less than high school group, and the have similar distribution and range, but the median age of equivalent high school group for female is higher than male. Moreover, the overall age of have more than high school education level will be younger than other two education levels. 
 
+3. Create total activity over the day and plot.
+```{r message = FALSE}
+total_activity = merge_df %>% 
+  group_by(seqn, sex, age, bmi, education) %>% 
+  summarise(total_mims = sum(across(min1:min1440)))
+
+ggplot(total_activity, aes(x = age, y = total_mims, color = sex)) +
+  geom_point(alpha =.5) +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ education)
+```
+The trends of total_activity for all female age in high school equivalent and more than higher school groups are higher than male. But in less than high school group, the trend of male surpass the trend of female around 41~42 years old. And the overall trend of male and female in each education level is decreasing with age increasing. 
+
+
 
 
 
