@@ -192,7 +192,9 @@ From the table, we can see overall most riders are member and members have more 
 july_2024_df %>% 
   group_by(start_station_name) %>% 
   summarise(count = n()) %>% 
-  arrange(desc(count)) 
+  arrange(desc(count)) %>% 
+  slice_head(n =5) %>% 
+  knitr::kable()
 ```
 
 
