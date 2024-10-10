@@ -1,0 +1,14 @@
+---
+title: "p8105_hw3_zg2486"
+output: github_document
+name: Ziqi Guo
+date: "2024-10-07"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggridges)
+```
+
+
+

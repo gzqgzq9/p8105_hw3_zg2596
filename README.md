@@ -1,1 +1,1 @@
-# p8105_hw3_zg2596
+Rewrite of HW3 since error report!!!
