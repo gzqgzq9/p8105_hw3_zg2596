@@ -23,8 +23,43 @@ ncol(ny_noaa)
 ```
 There are `r nrow(ny_noaa)` observations and `r ncol(ny_noaa)` variables in the dateset.The variables include `id`, `date`, `prcp`, `snow`, `snwd`, `tmax`, `tmin`. We can see lots of tmax and tmin data is missing and some prcp, snow, snwd data are missing as well.
 
+2. Data cleaning.
+```{r}
+str(ny_noaa)
 
+clean_df = ny_noaa %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    prcp = prcp / 10,
+    snow = snow / 10,
+    snwd = snwd / 10,
+    tmax = as.numeric(tmax) / 10,
+    tmin = as.numeric(tmin) / 10
+  ) %>% 
+  drop_na() 
 
+clean_df %>% 
+  count(snow, name = "n_obs") %>% 
+  arrange(desc(n_obs))
+```
+The most commonly observed value is 0 cm.
+
+3. Make a two-panel plot for average tmax.
+```{r message = FALSE}
+plot_df = clean_df %>% 
+  mutate(
+    year_month = lubridate::floor_date(date, unit = "month")) %>% 
+  group_by(id, year_month) %>% 
+  summarise(mean_tmax = mean(tmax))
+  
+ggplot(plot_df, aes(x = year_month, y = mean_tmax, color = id)) +
+  geom_point(alpha = .5) +
+  facet_grid(. ~ id)
+  
+```
 
 
 
