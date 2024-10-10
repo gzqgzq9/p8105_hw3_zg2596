@@ -12,3 +12,19 @@ library(ggridges)
 
 
 
+# Problem 1
+1. Import dataset.
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+
+nrow(ny_noaa)
+ncol(ny_noaa)
+```
+There are `r nrow(ny_noaa)` observations and `r ncol(ny_noaa)` variables in the dateset.The variables include `id`, `date`, `prcp`, `snow`, `snwd`, `tmax`, `tmin`. We can see lots of tmax and tmin data is missing and some prcp, snow, snwd data are missing as well.
+
+
+
+
+
+
