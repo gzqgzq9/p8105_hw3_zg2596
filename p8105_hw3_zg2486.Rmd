@@ -174,7 +174,7 @@ final_df = bind_rows(list(jan_2020_df, jan_2024_df, july_2020_df, july_2024_df))
 
 ```
 
-2. Create a reader-friendly table
+2. Create a reader-friendly table.
 ```{r message = FALSE}
 final_df %>% 
   group_by(date, member_casual) %>% 
@@ -185,7 +185,14 @@ final_df %>%
   ) %>%
   knitr::kable()
 ```
+From the table, we can see overall most riders are member and members have more riding than casual riders. There were over 45000 riders in July 2024.
 
-
+3. Make a table showing the 5 most popular starting stations for July 2024.
+```{r}
+july_2024_df %>% 
+  group_by(start_station_name) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count)) 
+```
 
 
