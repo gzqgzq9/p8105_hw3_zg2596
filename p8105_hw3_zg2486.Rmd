@@ -174,7 +174,17 @@ final_df = bind_rows(list(jan_2020_df, jan_2024_df, july_2020_df, july_2024_df))
 
 ```
 
-
+2. Create a reader-friendly table
+```{r message = FALSE}
+final_df %>% 
+  group_by(date, member_casual) %>% 
+  summarise(count = n()) %>% 
+  pivot_wider(
+    names_from = "member_casual",
+    values_from = "count",
+  ) %>%
+  knitr::kable()
+```
 
 
 
