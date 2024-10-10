@@ -63,3 +63,33 @@ ggplot(plot_df, aes(x = year_month, y = mean_tmax, color = id)) +
 
 
 
+# Problem 2
+1. Import, clean, merge data sets.
+```{r}
+demo_df = read_csv("./nhanes_covar.csv",
+                    na = c("NA", "", "."),
+                    skip = 4,
+                    show_col_types = FALSE) %>% 
+  janitor::clean_names() %>% 
+  filter(age >= 21) %>% 
+  drop_na() %>% 
+  mutate(
+    sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
+    education = factor(education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent", "More than high school"))) 
+
+accel_df = read_csv("./nhanes_accel.csv",
+                    na = c("NA", "", "."), 
+                    show_col_types = FALSE) %>% 
+  janitor::clean_names() 
+
+merge_df = left_join(demo_df, accel_df, by = c("seqn")) %>% 
+  select(seqn, sex, age, bmi, education, everything())
+```
+
+
+
+
+
+
+
+
