@@ -150,28 +150,35 @@ jan_2020_df =
   read_csv("./citibike/Jan 2020 Citi.csv",
         na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
-  mutate(date = "january 2020") 
+  mutate(month = "january") %>% 
+  mutate(year = "2020") %>% 
+  mutate(date = "january 2020")
 
 jan_2024_df = 
   read_csv("./citibike/Jan 2024 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
-  mutate(date = "january 2024") 
+  mutate(month = "january") %>% 
+  mutate(year = "2024") %>% 
+  mutate(date = "january 2024")
 
 july_2020_df = 
   read.csv("./citibike/July 2020 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
-  mutate(date = "july 2020") 
+  mutate(month = "july") %>% 
+  mutate(year = "2020") %>% 
+  mutate(date = "july 2020")
 
 july_2024_df = 
   read.csv("./citibike/July 2024 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
-  mutate(date = "july 2024") 
+  mutate(month = "july") %>% 
+  mutate(year= "2024") %>% 
+  mutate(date = "july 2024")
 
 final_df = bind_rows(list(jan_2020_df, jan_2024_df, july_2020_df, july_2024_df)) 
-
 ```
 
 2. Create a reader-friendly table.
@@ -196,5 +203,27 @@ july_2024_df %>%
   slice_head(n =5) %>% 
   knitr::kable()
 ```
+
+4. Make a plot to investigate the effects of day of the week, month, and year on median ride duration.
+```{r message = FALSE}
+final_df %>% 
+  mutate(
+    weekdays = factor(weekdays, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+  ) %>% 
+  group_by(weekdays, month, year) %>%
+  summarise(median_duration = median(duration)) %>% 
+  ggplot(aes(x = weekdays, y = median_duration, color = interaction(year, month))) +
+  geom_line(aes(group = interaction(year, month))) + 
+  facet_grid(year ~ month) +
+  theme(legend.position = "bottom")
+```
+The median 
+
+
+
+
+
+
+
 
 
