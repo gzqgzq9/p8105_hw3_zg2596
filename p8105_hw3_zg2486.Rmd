@@ -217,7 +217,7 @@ final_df %>%
   facet_grid(year ~ month) +
   theme(legend.position = "bottom")
 ```
-The median 
+Comparing each day of the week, we can see generally there were higher median ride duration on the weekend than weekdays, besides Sunday on January 2024. We can also see no matter of which year, the median ride duration in July were higher than January. Moreover, the median ride duration were higher in 2020 compared to 2024 regardless of month.
 
 
 
