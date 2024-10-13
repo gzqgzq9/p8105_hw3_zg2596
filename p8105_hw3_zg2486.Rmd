@@ -11,7 +11,6 @@ library(ggridges)
 ```
 
 
-
 # Problem 1
 1. Import dataset.
 ```{r}
@@ -64,7 +63,21 @@ ggplot(plot_df, aes(x = year, y = mean_tmax, color = id)) +
   geom_line(alpha = .5) +
   facet_grid(. ~ month) +
   theme(legend.position = 'None')
-  
+```
+The overall the mean_tmax are higher in July than in January, and we can see a possible outlier around 1988 that the mean_tmax are below 15 Celsius.s
+
+4. Make a two-panel plot.
+```{r}
+max_min = clean_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_bin2d() +
+  scale_fill_viridis_c() 
+
+snowfall = clean_df %>% 
+  filter(snow > 0 & snow < 100) %>% 
+  ggplot(aes(x = snow, fill = factor(year))) +
+  geom_histogram(position = "dodge") +
+  theme(legend.position = "bottom") 
 ```
 
 
@@ -106,7 +119,13 @@ merge_df %>%
 
 ggplot(merge_df, aes(x = education, y = age, color = sex)) + 
   geom_boxplot() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Age distribution for male and female in each education level",
+    x = "Education Level",
+    y = "Age",
+    color = "Sex"
+  )
 ```
 From the boxplot, we can see similar median age of more than high school group and less than high school group, and the have similar distribution and range, but the median age of equivalent high school group for female is higher than male. Moreover, the overall age of have more than high school education level will be younger than other two education levels. 
 
@@ -120,7 +139,13 @@ ggplot(total_activity, aes(x = age, y = total_mims, color = sex)) +
   geom_point(alpha =.5) +
   geom_smooth(se = FALSE) +
   facet_grid(. ~ education) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Total activity for different age in each education level",
+    x = "Age",
+    y = "Total activity",
+    color = "Sex"
+  )
 ```
 The trends of total_activity for all female age in high school equivalent and more than higher school groups are higher than male. But in less than high school group, the trend of male surpass the trend of female around 41-42 years old. And the overall trend of male and female in each education level is decreasing with age increasing. 
 
@@ -141,7 +166,13 @@ ggplot(activity_time, aes(x = minute, y = mean_mims, color = sex)) +
   geom_line(alpha = 0.5) +
   geom_smooth(se = FALSE) +
   facet_grid(. ~ education) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  labs(
+    title = "24-hour activity time courses for each education level",
+    x = "Mintue",
+    y = "Average activity for each minute",
+    color = "Sex"
+  )
 ```
 Female and male have a similar trend in 24-hour mean_mims activity time courses for each education level. For less than high school level, female have lower mean_mims than male when minute < 550, and female have higher mean_mims than female when minute around 550 - 750. For high school equivalent level, female overall have a higher mean_mims than male, especially when minute is around 500 -1000. For more than high school level, female overall have a higher mean_mims than male as well, especially when minute is around 
 500 -1250. 
@@ -220,19 +251,17 @@ final_df %>%
   ggplot(aes(x = weekdays, y = median_duration, color = interaction(year, month))) +
   geom_line(aes(group = interaction(year, month))) + 
   facet_grid(year ~ month) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Median ride duration by Weekday Across Month and Year",
+    x = "Weekdays",
+    y = "Median ride duration",
+    color = "Month - Year"
+  )
 ```
 Comparing each day of the week, we can see generally there were higher median ride duration on the weekend than weekdays, besides Sunday on January 2024. We can also see no matter of which year, the median ride duration in July were higher than January. Moreover, the median ride duration were higher in 2020 compared to 2024 regardless of month.
 
-5. Make a figure that shows the impact of month, membership status, and bike type on the distribution of ride duration for 2024 data.
-```{r}
-final_df %>% 
-  filter(year == "2024") %>% 
-  ggplot(aes(x = member_casual, y = duration, color = rideable_type)) +
-  geom_boxplot () +
-  facet_grid(. ~ month) +
-  theme(legend.position = "bottom")
-```
+
 
 
 
