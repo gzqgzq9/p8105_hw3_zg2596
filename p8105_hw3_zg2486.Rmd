@@ -281,7 +281,7 @@ final_df %>%
   )
 ```
 From the violin plot we can see that member riders have more low ride duration than casual riders, since the plots for member rider are wider. When ride duration is close to 50 minutes, the violin plots in July have wider spread than January with similar spread in other ride duration. For bike types, we can see electric bike riders have wider spread with low ride duration than classic bike riders.
-
+  
 
 
 
