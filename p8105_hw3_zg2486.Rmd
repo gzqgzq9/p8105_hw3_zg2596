@@ -8,6 +8,7 @@ date: "2024-10-07"
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggridges)
+library(patchwork)
 ```
 
 
@@ -37,8 +38,7 @@ clean_df = ny_noaa %>%
     snwd = snwd / 10,
     tmax = as.numeric(tmax) / 10,
     tmin = as.numeric(tmin) / 10
-  ) %>% 
-  drop_na() 
+  )
 
 clean_df %>% 
   count(snow, name = "n_obs") %>% 
@@ -57,12 +57,14 @@ plot_df = clean_df %>%
     )
   ) %>% 
   group_by(year, month, id) %>% 
-  summarise(mean_tmax = mean(tmax))
+  summarise(mean_tmax = mean(tmax), na.rm = TRUE)
   
 ggplot(plot_df, aes(x = year, y = mean_tmax, color = id)) +
-  geom_line(alpha = .5) +
+  geom_point(alpha = .5) +
+  geom_path() +
   facet_grid(. ~ month) +
-  theme(legend.position = 'None')
+  theme(legend.position = 'None') + 
+  labs(title = "Mean monthly temperature for each station across years for January and July")
 ```
 The overall the mean_tmax are higher in July than in January, and we can see a possible outlier around 1988 that the mean_tmax are below 15 Celsius.s
 
@@ -74,18 +76,20 @@ max_min = clean_df %>%
   scale_fill_viridis_c() 
 
 snowfall = clean_df %>% 
-  filter(snow > 0 & snow < 100) %>% 
-  ggplot(aes(x = snow, fill = factor(year))) +
-  geom_histogram(position = "dodge") +
+  filter(snow > 0, snow < 100) %>% 
+  ggplot(aes(x = snow, y = as.factor(year))) +
+  geom_density_ridges() +
   theme(legend.position = "bottom") 
-```
 
+max_min + snowfall
+```
+In the max_min plot we see that while there is some variability, the majority of the data cluster tightly in the center of the distribution. In several few cases, `tmax` is less than `tmin`, which raises questions about data recording and quality. In the snowfall plot, we see a multimodal density of snowfall within a given year. Most stations see between 0 and  25 mm of snow in a year. 
 
 
 # Problem 2
 1. Import, clean, merge data sets.
 ```{r}
-demo_df = read_csv("./nhanes_covar.csv",
+demo_df = read_csv("./data/nhanes_covar.csv",
                     na = c("NA", "", "."),
                     skip = 4,
                     show_col_types = FALSE) %>% 
@@ -96,7 +100,7 @@ demo_df = read_csv("./nhanes_covar.csv",
     sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
     education = factor(education, levels = c(1, 2, 3), labels = c("Less than high school", "High school equivalent", "More than high school"))) 
 
-accel_df = read_csv("./nhanes_accel.csv",
+accel_df = read_csv("./data/nhanes_accel.csv",
                     na = c("NA", "", "."), 
                     show_col_types = FALSE) %>% 
   janitor::clean_names() 
@@ -117,17 +121,18 @@ merge_df %>%
   ) %>% 
   knitr::kable() 
 
-ggplot(merge_df, aes(x = education, y = age, color = sex)) + 
-  geom_boxplot() +
+ggplot(merge_df, aes(x = age, fill = sex)) + 
+  geom_density(alpha = 0.5) +
+  facet_grid(. ~ education) +
   theme(legend.position = "bottom") +
   labs(
     title = "Age distribution for male and female in each education level",
-    x = "Education Level",
-    y = "Age",
+    x = "Age",
+    y = "Density",
     color = "Sex"
   )
 ```
-From the boxplot, we can see similar median age of more than high school group and less than high school group, and the have similar distribution and range, but the median age of equivalent high school group for female is higher than male. Moreover, the overall age of have more than high school education level will be younger than other two education levels. 
+From the table and density plot, we can see even though the age distribution of male is bimodel, the age distribution of male and female overlap in less than high school level. For high school equivalent level, the age distribution of male is bimodel, and the number of male aged between 20-40 is higher than female in the same age, but the number of female aged between 62-80 is hihger than male. For more than high school level, female have higher density in age 22-45, while the density is slightly lower in other age.
 
 3. Create total activity over the day and plot.
 ```{r message = FALSE}
@@ -158,19 +163,17 @@ activity_time = merge_df %>%
     names_prefix = "min",
     values_to = "mims"
   ) %>% 
-  mutate(minute = as.numeric(minute)) %>% 
-  group_by(sex, education, minute) %>% 
-  mutate(mean_mims = mean(mims)) 
+  mutate(minute = as.numeric(minute))
 
-ggplot(activity_time, aes(x = minute, y = mean_mims, color = sex)) +
-  geom_line(alpha = 0.5) +
-  geom_smooth(se = FALSE) +
+ggplot(activity_time, aes(x = minute, y = mims, group = seqn, color = sex)) +
+  geom_line(alpha = 0.3) +
+  geom_smooth(aes(group = sex), se = FALSE) +
   facet_grid(. ~ education) +
   theme(legend.position = "bottom") +
   labs(
     title = "24-hour activity time courses for each education level",
     x = "Mintue",
-    y = "Average activity for each minute",
+    y = "Activity for each minute",
     color = "Sex"
   )
 ```
@@ -183,7 +186,7 @@ Female and male have a similar trend in 24-hour mean_mims activity time courses 
 1. Import, clean, and tidy data.
 ```{r message = FALSE}
 jan_2020_df = 
-  read_csv("./citibike/Jan 2020 Citi.csv",
+  read_csv("./data/citibike/Jan 2020 Citi.csv",
         na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
   mutate(month = "january") %>% 
@@ -191,7 +194,7 @@ jan_2020_df =
   mutate(date = "january 2020")
 
 jan_2024_df = 
-  read_csv("./citibike/Jan 2024 Citi.csv",
+  read_csv("./data/citibike/Jan 2024 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
   mutate(month = "january") %>% 
@@ -199,7 +202,7 @@ jan_2024_df =
   mutate(date = "january 2024")
 
 july_2020_df = 
-  read.csv("./citibike/July 2020 Citi.csv",
+  read.csv("./data/citibike/July 2020 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
   mutate(month = "july") %>% 
@@ -207,7 +210,7 @@ july_2020_df =
   mutate(date = "july 2020")
 
 july_2024_df = 
-  read.csv("./citibike/July 2024 Citi.csv",
+  read.csv("./data/citibike/July 2024 Citi.csv",
             na = c("NA", "", ".")) %>% 
   janitor::clean_names() %>% 
   mutate(month = "july") %>% 
@@ -228,7 +231,7 @@ final_df %>%
   ) %>%
   knitr::kable()
 ```
-From the table, we can see overall most riders are member and members have more riding than casual riders. There were over 45000 riders in July 2024.
+From the table, we can see overall most riders are member and members have more riding than casual riders. We have more riders in July than January, and overall more riders in 2024 than 2020.
 
 3. Make a table showing the 5 most popular starting stations for July 2024.
 ```{r}
@@ -239,6 +242,7 @@ july_2024_df %>%
   slice_head(n =5) %>% 
   knitr::kable()
 ```
+The 5 most popular starting stations for July 2024 are `Pier 61 at Chelsea Piers`(163 counts), `University Pl & E 14 St`(155 counts), `W 21 St & 6 Ave`(152 counts), `West St & Chambers St `(150 counts), `W 31 St & 7 Ave`(146 counts).
 
 4. Make a plot to investigate the effects of day of the week, month, and year on median ride duration.
 ```{r message = FALSE}
@@ -261,8 +265,22 @@ final_df %>%
 ```
 Comparing each day of the week, we can see generally there were higher median ride duration on the weekend than weekdays, besides Sunday on January 2024. We can also see no matter of which year, the median ride duration in July were higher than January. Moreover, the median ride duration were higher in 2020 compared to 2024 regardless of month.
 
-
-
+5. Make a figure that shows the impact of month, membership status, and bike type on the distribution of ride duration for 2024 data.
+```{r}
+final_df %>% 
+  filter(year == "2024") %>% 
+  group_by(member_casual, year, month) %>% 
+  ggplot(aes(x = member_casual, y = duration, color = interaction(month, rideable_type))) +
+  geom_violin() +
+  facet_grid(rideable_type ~ month) +
+  theme(legend.position = "bottom") +
+  labs(
+    title = "Distribution of Ride Duration by Month, Membership Status, and Bike Types",
+    x = "Membership Types",
+    y = "Ride Duration"
+  )
+```
+From the violin plot we can see that member riders have more low ride duration than casual riders, since the plots for member rider are wider. When ride duration is close to 50 minutes, the violin plots in July have wider spread than January with similar spread in other ride duration. For bike types, we can see electric bike riders have wider spread with low ride duration than classic bike riders.
 
 
 
